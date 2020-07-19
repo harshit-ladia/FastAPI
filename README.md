@@ -1,2 +1,1 @@
-# celebal
-celebal tasks
+usage of fastapi to perform crud in mysql
