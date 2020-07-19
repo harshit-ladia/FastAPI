@@ -1,25 +1,11 @@
-#import uvicorn
-#from fastapi import FastAPI
-#app = FastAPI(debug = True)
-#
-#@app.get("/")
-#async def root():
-#    return {"hello world": "fastapi"}
-#
-#if __name__ == "__main__":
-#    uvicorn.run(app, host ="0.0.0.0", port=8000)
-#import uvicorn
 from typing import List
 from pydantic import BaseModel,Field
 import databases, sqlalchemy, datetime, uuid
 from fastapi import Depends, FastAPI, HTTPException
-#from sqlalchemy.orm import Session
-DATABASE_URL = "mysql://root:1234567890@localhost:3306/minitwitter"
+DATABASE_URL = "mysql://user:password@localhost:3306/database_name"
 database = databases.Database(DATABASE_URL)
 metadata = sqlalchemy.MetaData()
-users = sqlalchemy.Table(
-    "py_users",
-    metadata,
+users = sqlalchemy.Table( "table_name", metadata,
     sqlalchemy.Column("id", sqlalchemy.String(200), primary_key=True),
     sqlalchemy.Column("username", sqlalchemy.String(15)),
     sqlalchemy.Column("password", sqlalchemy.String(15)),
@@ -27,12 +13,11 @@ users = sqlalchemy.Table(
     sqlalchemy.Column("last_name", sqlalchemy.String(15)),
     sqlalchemy.Column("gender", sqlalchemy.CHAR),
     sqlalchemy.Column("create_at", sqlalchemy.String(250)),
-    sqlalchemy.Column("status", sqlalchemy.CHAR),
-)
-engine = sqlalchemy.create_engine(
-    DATABASE_URL
-)
+    sqlalchemy.Column("status", sqlalchemy.CHAR))
+
+engine = sqlalchemy.create_engine(DATABASE_URL)
 metadata.create_all(engine)
+
 # MODELS
 class UserList(BaseModel):
     id: str
@@ -59,6 +44,7 @@ class UserDelete(BaseModel):
     id: str = Field(..., example = "Enter id")
 
 app = FastAPI()
+
 @app.on_event("startup")
 async def startup():
     await database.connect()
@@ -93,6 +79,7 @@ async def register_user(user: UserEntry):
         "create_at": gDate,
         "status": "1"
     }
+
 @app.get("/users/{userid}", response_model=UserList)
 async def find_user_by_id(userid: str):
     query = users.select().where(users.c.id == userid)
@@ -120,5 +107,3 @@ async def delete_user(user:UserDelete):
         "status": True,
         "message": "delete successful"
     }
-#if __name__ == "__main__":
-#    uvicorn.run(app, host="0.0.0.0", port=8000)
