@@ -1,1 +1,1 @@
-usage of fastapi to perform crud in mysql
+Usage of FastAPI to perform crud in MySQL
